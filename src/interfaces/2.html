@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Reserva de Citas Médicas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 1000px;
+            overflow: hidden;
+        }
+
+        .header {
+            background: #1976d2;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .content {
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .content {
+                flex-direction: row;
+            }
+        }
+
+        .doctor-info {
+            flex: 1;
+            padding: 20px;
+            border-right: 1px solid #eee;
+        }
+
+        .calendar-section {
+            flex: 2;
+            padding: 20px;
+        }
+
+        .doctor-card {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .doctor-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #bbdefb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            margin-right: 15px;
+            color: #1976d2;
+        }
+
+        .doctor-details h2 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .specialty {
+            color: #1976d2;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .rating {
+            color: #f57c00;
+            display: flex;
+            align-items: center;
+        }
+
+        .schedule-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .schedule-info h3 {
+            margin-bottom: 10px;
+            color: #1976d2;
+        }
+
+        .schedule-day {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #bbdefb;
+        }
+
+        .schedule-day:last-child {
+            border-bottom: none;
+        }
+
+        .calendar-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .nav-button {
+            background: #1976d2;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background 0.3s;
+        }
+
+        .nav-button:hover {
+            background: #1565c0;
+        }
+
+        .current-month {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .week-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            font-weight: 600;
+            color: #1976d2;
+            margin-bottom: 10px;
+        }
+
+        .week-day {
+            padding: 10px;
+        }
+
+        .days-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+
+        .day {
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .day.available {
+            background: #e8f5e9;
+            color: #2e7d32;
+            font-weight: 500;
+        }
+
+        .day.available:hover {
+            background: #c8e6c9;
+        }
+
+        .day.selected {
+            background: #4caf50;
+            color: white;
+            font-weight: bold;
+        }
+
+        .day.unavailable {
+            color: #bdbdbd;
+            cursor: not-allowed;
+        }
+
+        .day.empty {
+            visibility: hidden;
+        }
+
+        .time-slots {
+            margin-top: 30px;
+        }
+
+        .time-slots h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .slots-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .time-slot {
+            padding: 10px;
+            text-align: center;
+            background: #e3f2fd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .time-slot:hover {
+            background: #bbdefb;
+        }
+
+        .time-slot.selected {
+            background: #1976d2;
+            color: white;
+        }
+
+        .time-slot.unavailable {
+            background: #f5f5f5;
+            color: #9e9e9e;
+            cursor: not-allowed;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #4caf50;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #388e3c;
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+            margin-right: 10px;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: #4caf50;
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Sistema de Reserva de Citas Médicas</h1>
+            <p>Selecciona una fecha y horario disponible para tu cita</p>
+        </div>
+
+        <div class="content">
+            <div class="doctor-info">
+                <div class="doctor-card">
+                    <div class="doctor-avatar">👨‍⚕️</div>
+                    <div class="doctor-details">
+                        <h2>Dr. Juan Pérez</h2>
+                        <p class="specialty">Cardiólogo</p>
+                        <p class="rating">⭐ 4.8 (126 opiniones)</p>
+                    </div>
+                </div>
+
+                <div class="schedule-info">
+                    <h3>Horarios de atención</h3>
+                    <div class="schedule-day">
+                        <span>Lunes</span>
+                        <span>8:30 AM - 12:00 PM, 2:00 PM - 5:00 PM</span>
+                    </div>
+                    <div class="schedule-day">
+                        <span>Miércoles</span>
+                        <span>8:30 AM - 12:00 PM, 2:00 PM - 5:00 PM</span>
+                    </div>
+                    <div class="schedule-day">
+                        <span>Viernes</span>
+                        <span>8:30 AM - 12:00 PM</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="calendar-section">
+                <div class="calendar-navigation">
+                    <button class="nav-button" id="prev-month">←</button>
+                    <h2 class="current-month" id="current-month">Noviembre 2023</h2>
+                    <button class="nav-button" id="next-month">→</button>
+                </div>
+
+                <div class="week-days">
+                    <div class="week-day">Lun</div>
+                    <div class="week-day">Mar</div>
+                    <div class="week-day">Mié</div>
+                    <div class="week-day">Jue</div>
+                    <div class="week-day">Vie</div>
+                    <div class="week-day">Sáb</div>
+                    <div class="week-day">Dom</div>
+                </div>
+
+                <div class="days-grid" id="days-grid">
+                    <!-- Los días se generarán con JavaScript -->
+                </div>
+
+                <div class="time-slots">
+                    <h3>Horarios disponibles para <span id="selected-date">[Selecciona una fecha]</span></h3>
+                    <div class="slots-grid" id="slots-grid">
+                        <!-- Los horarios se generarán con JavaScript -->
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button class="btn btn-secondary" id="cancel-btn">Cancelar</button>
+                    <button class="btn btn-primary" id="confirm-btn" disabled>Confirmar Cita</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification">¡Cita reservada con éxito!</div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elementos del DOM
+            const currentMonthElement = document.getElementById('current-month');
+            const daysGrid = document.getElementById('days-grid');
+            const slotsGrid = document.getElementById('slots-grid');
+            const selectedDateElement = document.getElementById('selected-date');
+            const prevMonthButton = document.getElementById('prev-month');
+            const nextMonthButton = document.getElementById('next-month');
+            const confirmButton = document.getElementById('confirm-btn');
+            const cancelButton = document.getElementById('cancel-btn');
+            const notification = document.getElementById('notification');
+
+            // Fecha actual
+            let currentDate = new Date();
+            let currentMonth = currentDate.getMonth();
+            let currentYear = currentDate.getFullYear();
+            let selectedDate = null;
+            let selectedTime = null;
+
+            // Horarios disponibles (simulados)
+            const availableTimeSlots = [
+                '8:00 AM', '8:30 AM', '9:00 AM', '9:30 AM', '10:00 AM', '10:30 AM',
+                '11:00 AM', '11:30 AM', '2:00 PM', '2:30 PM', '3:00 PM', '3:30 PM',
+                '4:00 PM', '4:30 PM'
+            ];
+
+            // Días no disponibles (simulados)
+            const unavailableDays = [
+                new Date(currentYear, currentMonth, 2),
+                new Date(currentYear, currentMonth, 7),
+                new Date(currentYear, currentMonth, 12),
+                new Date(currentYear, currentMonth, 17),
+                new Date(currentYear, currentMonth, 22),
+                new Date(currentYear, currentMonth, 27)
+            ];
+
+            // Inicializar calendario
+            renderCalendar(currentMonth, currentYear);
+
+            // Event listeners
+            prevMonthButton.addEventListener('click', () => {
+                currentMonth--;
+                if (currentMonth < 0) {
+                    currentMonth = 11;
+                    currentYear--;
+                }
+                renderCalendar(currentMonth, currentYear);
+            });
+
+            nextMonthButton.addEventListener('click', () => {
+                currentMonth++;
+                if (currentMonth > 11) {
+                    currentMonth = 0;
+                    currentYear++;
+                }
+                renderCalendar(currentMonth, currentYear);
+            });
+
+            confirmButton.addEventListener('click', () => {
+                if (selectedDate && selectedTime) {
+                    showNotification();
+                    // Aquí iría la lógica para guardar la cita en el sistema
+                }
+            });
+
+            cancelButton.addEventListener('click', () => {
+                selectedDate = null;
+                selectedTime = null;
+                renderCalendar(currentMonth, currentYear);
+                updateConfirmButton();
+                selectedDateElement.textContent = "[Selecciona una fecha]";
+                slotsGrid.innerHTML = "";
+            });
+
+            // Función para renderizar el calendario
+            function renderCalendar(month, year) {
+                // Actualizar el encabezado del mes
+                const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+                    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+                ];
+                currentMonthElement.textContent = `${monthNames[month]} ${year}`;
+
+                // Obtener el primer día del mes y la cantidad de días
+                const firstDay = new Date(year, month, 1).getDay();
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+                // Ajustar para que la semana comience en lunes
+                let startDay = firstDay === 0 ? 6 : firstDay - 1;
+
+                // Limpiar el grid de días
+                daysGrid.innerHTML = "";
+
+                // Agregar días vacíos al inicio si es necesario
+                for (let i = 0; i < startDay; i++) {
+                    const emptyDay = document.createElement('div');
+                    emptyDay.classList.add('day', 'empty');
+                    daysGrid.appendChild(emptyDay);
+                }
+
+                // Agregar los días del mes
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const dayElement = document.createElement('div');
+                    dayElement.classList.add('day');
+                    dayElement.textContent = day;
+
+                    const date = new Date(year, month, day);
+                    
+                    // Comprobar si el día está disponible
+                    const isUnavailable = unavailableDays.some(unavailableDate => 
+                        unavailableDate.getDate() === date.getDate() &&
+                        unavailableDate.getMonth() === date.getMonth() &&
+                        unavailableDate.getFullYear() === date.getFullYear()
+                    );
+
+                    // Comprobar si es fin de semana
+                    const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+
+                    // Comprobar si es una fecha pasada
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    const isPast = date < today;
+
+                    if (isUnavailable || isWeekend || isPast) {
+                        dayElement.classList.add('unavailable');
+                    } else {
+                        dayElement.classList.add('available');
+                        
+                        // Resaltar si está seleccionado
+                        if (selectedDate && 
+                            selectedDate.getDate() === date.getDate() &&
+                            selectedDate.getMonth() === date.getMonth() &&
+                            selectedDate.getFullYear() === date.getFullYear()) {
+                            dayElement.classList.add('selected');
+                        }
+
+                        dayElement.addEventListener('click', () => selectDate(date));
+                    }
+
+                    daysGrid.appendChild(dayElement);
+                }
+            }
+
+            // Función para seleccionar una fecha
+            function selectDate(date) {
+                selectedDate = date;
+                selectedTime = null;
+                
+                // Actualizar la interfaz
+                const dateString = date.toLocaleDateString('es-ES', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+                selectedDateElement.textContent = dateString;
+                
+                // Renderizar horarios disponibles
+                renderTimeSlots();
+                
+                // Actualizar el calendario
+                renderCalendar(currentMonth, currentYear);
+                
+                // Actualizar el botón de confirmación
+                updateConfirmButton();
+            }
+
+            // Función para renderizar los horarios disponibles
+            function renderTimeSlots() {
+                slotsGrid.innerHTML = "";
+                
+                // Simular que algunos horarios ya están ocupados
+                const unavailableSlots = ['9:00 AM', '10:30 AM', '2:30 PM'];
+                
+                availableTimeSlots.forEach(slot => {
+                    const slotElement = document.createElement('div');
+                    slotElement.classList.add('time-slot');
+                    slotElement.textContent = slot;
+                    
+                    if (unavailableSlots.includes(slot)) {
+                        slotElement.classList.add('unavailable');
+                    } else {
+                        if (selectedTime === slot) {
+                            slotElement.classList.add('selected');
+                        }
+                        
+                        slotElement.addEventListener('click', () => {
+                            selectedTime = slot;
+                            renderTimeSlots();
+                            updateConfirmButton();
+                        });
+                    }
+                    
+                    slotsGrid.appendChild(slotElement);
+                });
+            }
+
+            // Función para actualizar el estado del botón de confirmación
+            function updateConfirmButton() {
+                confirmButton.disabled = !(selectedDate && selectedTime);
+            }
+
+            // Función para mostrar notificación
+            function showNotification() {
+                notification.classList.add('show');
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+
+            // Inicializar horarios
+            renderTimeSlots();
+        });
+    </script>
+</body>
+</html>

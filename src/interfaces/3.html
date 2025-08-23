@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Horarios Médicos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 1200px;
+            overflow: hidden;
+        }
+
+        .header {
+            background: #1976d2;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding: 20px;
+            background: #e3f2fd;
+            border-bottom: 1px solid #bbdefb;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #1976d2;
+        }
+
+        .filter-group select, .filter-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #bbdefb;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .content {
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        @media (min-width: 992px) {
+            .content {
+                flex-direction: row;
+            }
+        }
+
+        .doctors-list {
+            flex: 1;
+            padding: 15px;
+            border-right: 1px solid #eee;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .calendar-section {
+            flex: 2;
+            padding: 15px;
+        }
+
+        .doctor-card {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid #e0e0e0;
+        }
+
+        .doctor-card:hover {
+            background: #f5f5f5;
+        }
+
+        .doctor-card.selected {
+            background: #e3f2fd;
+            border-color: #1976d2;
+        }
+
+        .doctor-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #bbdefb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-right: 15px;
+            color: #1976d2;
+        }
+
+        .doctor-details h2 {
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 18px;
+        }
+
+        .specialty {
+            color: #1976d2;
+            font-weight: 500;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .rating {
+            color: #f57c00;
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .calendar-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .nav-button {
+            background: #1976d2;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background 0.3s;
+        }
+
+        .nav-button:hover {
+            background: #1565c0;
+        }
+
+        .current-month {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .week-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            font-weight: 600;
+            color: #1976d2;
+            margin-bottom: 10px;
+        }
+
+        .week-day {
+            padding: 10px;
+        }
+
+        .days-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+
+        .day {
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+            position: relative;
+            border: 1px solid #e0e0e0;
+        }
+
+        .day.available {
+            background: #e8f5e9;
+            color: #2e7d32;
+            font-weight: 500;
+        }
+
+        .day.available:hover {
+            background: #c8e6c9;
+        }
+
+        .day.selected {
+            background: #4caf50;
+            color: white;
+            font-weight: bold;
+        }
+
+        .day.unavailable {
+            color: #bdbdbd;
+            cursor: not-allowed;
+            background: #f5f5f5;
+        }
+
+        .day.empty {
+            visibility: hidden;
+            border: none;
+        }
+
+        .day.today {
+            border: 2px solid #1976d2;
+        }
+
+        .time-slots {
+            margin-top: 30px;
+        }
+
+        .time-slots h3 {
+            margin-bottom: 15px;
+            color: #333;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #1976d2;
+        }
+
+        .slots-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .time-slot {
+            padding: 12px;
+            text-align: center;
+            background: #e3f2fd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .time-slot:hover {
+            background: #bbdefb;
+        }
+
+        .time-slot.selected {
+            background: #1976d2;
+            color: white;
+        }
+
+        .time-slot.unavailable {
+            background: #f5f5f5;
+            color: #9e9e9e;
+            cursor: not-allowed;
+            text-decoration: line-through;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #4caf50;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #388e3c;
+        }
+
+        .btn-primary:disabled {
+            background: #c8e6c9;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+            margin-right: 10px;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: #4caf50;
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .no-slots-message {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-style: italic;
+            background: #f5f5f5;
+            border-radius: 8px;
+        }
+
+        .doctor-schedule-info {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid #ffc107;
+        }
+
+        .doctor-schedule-info h4 {
+            margin-bottom: 10px;
+            color: #856404;
+        }
+
+        .schedule-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #ffeaa7;
+        }
+
+        .schedule-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Sistema de Gestión de Horarios Médicos</h1>
+            <p>Selecciona un doctor y una fecha para ver sus horarios disponibles</p>
+        </div>
+
+        <div class="filters">
+            <div class="filter-group">
+                <label for="specialty-filter">Especialidad:</label>
+                <select id="specialty-filter">
+                    <option value="">Todas las especialidades</option>
+                    <option value="Cardiología">Cardiología</option>
+                    <option value="Dermatología">Dermatología</option>
+                    <option value="Pediatría">Pediatría</option>
+                    <option value="Ginecología">Ginecología</option>
+                    <option value="Ortopedia">Ortopedia</option>
+                    <option value="Odontología">Odontología</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="date-filter">Fecha:</label>
+                <input type="date" id="date-filter">
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="doctors-list" id="doctors-list">
+                <!-- Lista de doctores se generará con JavaScript -->
+            </div>
+
+            <div class="calendar-section">
+                <div class="calendar-navigation">
+                    <button class="nav-button" id="prev-month">←</button>
+                    <h2 class="current-month" id="current-month">Noviembre 2023</h2>
+                    <button class="nav-button" id="next-month">→</button>
+                </div>
+
+                <div class="week-days">
+                    <div class="week-day">Lun</div>
+                    <div class="week-day">Mar</div>
+                    <div class="week-day">Mié</div>
+                    <div class="week-day">Jue</div>
+                    <div class="week-day">Vie</div>
+                    <div class="week-day">Sáb</div>
+                    <div class="week-day">Dom</div>
+                </div>
+
+                <div class="days-grid" id="days-grid">
+                    <!-- Los días se generarán con JavaScript -->
+                </div>
+
+                <div class="doctor-schedule-info" id="schedule-info">
+                    <h4>Horario de atención del doctor</h4>
+                    <div id="schedule-details">
+                        Selecciona un doctor para ver su horario de atención
+                    </div>
+                </div>
+
+                <div class="time-slots">
+                    <h3>Horarios disponibles para <span id="selected-date">[Selecciona una fecha]</span></h3>
+                    <div class="slots-container" id="slots-container">
+                        <div class="no-slots-message">Selecciona un doctor y una fecha para ver los horarios disponibles</div>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button class="btn btn-secondary" id="cancel-btn">Cancelar</button>
+                    <button class="btn btn-primary" id="confirm-btn" disabled>Confirmar Cita</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification">¡Cita reservada con éxito!</div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Datos de ejemplo (simulando la importación desde data.js)
+            const doctors = [
+                { 
+                    id: 1, 
+                    name: "Dr. Juan Pérez", 
+                    specialty: "Cardiología", 
+                    rating: 4.8,
+                    schedule: [
+                        { day: "Lunes", hours: "08:30 - 12:00, 14:00 - 17:00" },
+                        { day: "Miércoles", hours: "08:30 - 12:00, 14:00 - 17:00" },
+                        { day: "Viernes", hours: "08:30 - 12:00" }
+                    ]
+                },
+                { 
+                    id: 2, 
+                    name: "Dra. Elena Morales", 
+                    specialty: "Cardiología", 
+                    rating: 4.9,
+                    schedule: [
+                        { day: "Martes", hours: "09:00 - 13:00, 15:00 - 18:00" },
+                        { day: "Jueves", hours: "09:00 - 13:00, 15:00 - 18:00" }
+                    ]
+                },
+                { 
+                    id: 5, 
+                    name: "Dra. María García", 
+                    specialty: "Dermatología", 
+                    rating: 4.9,
+                    schedule: [
+                        { day: "Martes", hours: "09:00 - 13:00, 15:00 - 18:00" },
+                        { day: "Jueves", hours: "09:00 - 13:00, 15:00 - 18:00" },
+                        { day: "Sábado", hours: "09:00 - 12:00" }
+                    ]
+                },
+                { 
+                    id: 8, 
+                    name: "Dr. Carlos López", 
+                    specialty: "Pediatría", 
+                    rating: 4.7,
+                    schedule: [
+                        { day: "Lunes", hours: "08:00 - 16:00" },
+                        { day: "Martes", hours: "08:00 - 16:00" },
+                        { day: "Miércoles", hours: "08:00 - 16:00" },
+                        { day: "Jueves", hours: "08:00 - 16:00" },
+                        { day: "Viernes", hours: "08:00 - 14:00" }
+                    ]
+                },
+                { 
+                    id: 11, 
+                    name: "Dra. Ana Rodríguez", 
+                    specialty: "Ginecología", 
+                    rating: 4.6,
+                    schedule: [
+                        { day: "Lunes", hours: "10:00 - 13:00, 16:00 - 19:00" },
+                        { day: "Miércoles", hours: "10:00 - 13:00, 16:00 - 19:00" },
+                        { day: "Viernes", hours: "10:00 - 13:00" }
+                    ]
+                },
+                { 
+                    id: 17, 
+                    name: "Dr. Roberto Martínez", 
+                    specialty: "Odontología", 
+                    rating: 4.8,
+                    schedule: [
+                        { day: "Lunes", hours: "08:30 - 12:30, 15:00 - 18:00" },
+                        { day: "Miércoles", hours: "08:30 - 12:30, 15:00 - 18:00" },
+                        { day: "Viernes", hours: "08:30 - 12:30" }
+                    ]
+                }
+            ];
+
+            // Elementos del DOM
+            const doctorsList = document.getElementById('doctors-list');
+            const currentMonthElement = document.getElementById('current-month');
+            const daysGrid = document.getElementById('days-grid');
+            const slotsContainer = document.getElementById('slots-container');
+            const selectedDateElement = document.getElementById('selected-date');
+            const scheduleDetails = document.getElementById('schedule-details');
+            const prevMonthButton = document.getElementById('prev-month');
+            const nextMonthButton = document.getElementById('next-month');
+            const confirmButton = document.getElementById('confirm-btn');
+            const cancelButton = document.getElementById('cancel-btn');
+            const notification = document.getElementById('notification');
+            const specialtyFilter = document.getElementById('specialty-filter');
+            const dateFilter = document.getElementById('date-filter');
+
+            // Estado de la aplicación
+            let currentDate = new Date();
+            let currentMonth = currentDate.getMonth();
+            let currentYear = currentDate.getFullYear();
+            let selectedDoctor = null;
+            let selectedDate = null;
+            let selectedTime = null;
+
+            // Inicializar
+            renderDoctorsList(doctors);
+            renderCalendar(currentMonth, currentYear);
+            setCurrentDateFilter();
+
+            // Event listeners
+            prevMonthButton.addEventListener('click', () => {
+                currentMonth--;
+                if (currentMonth < 0) {
+                    currentMonth = 11;
+                    currentYear--;
+                }
+                renderCalendar(currentMonth, currentYear);
+            });
+
+            nextMonthButton.addEventListener('click', () => {
+                currentMonth++;
+                if (currentMonth > 11) {
+                    currentMonth = 0;
+                    currentYear++;
+                }
+                renderCalendar(currentMonth, currentYear);
+            });
+
+            confirmButton.addEventListener('click', () => {
+                if (selectedDoctor && selectedDate && selectedTime) {
+                    showNotification();
+                    // Aquí iría la lógica para guardar la cita en el sistema
+                }
+            });
+
+            cancelButton.addEventListener('click', () => {
+                selectedDate = null;
+                selectedTime = null;
+                renderCalendar(currentMonth, currentYear);
+                updateConfirmButton();
+                selectedDateElement.textContent = "[Selecciona una fecha]";
+                slotsContainer.innerHTML = '<div class="no-slots-message">Selecciona un doctor y una fecha para ver los horarios disponibles</div>';
+            });
+
+            specialtyFilter.addEventListener('change', () => {
+                filterDoctors();
+            });
+
+            dateFilter.addEventListener('change', () => {
+                if (dateFilter.value) {
+                    const date = new Date(dateFilter.value);
+                    currentMonth = date.getMonth();
+                    currentYear = date.getFullYear();
+                    renderCalendar(currentMonth, currentYear);
+                    
+                    if (selectedDoctor) {
+                        selectDate(date);
+                    }
+                }
+            });
+
+            // Función para renderizar la lista de doctores
+            function renderDoctorsList(doctorsArray) {
+                doctorsList.innerHTML = "";
+                
+                doctorsArray.forEach(doctor => {
+                    const doctorCard = document.createElement('div');
+                    doctorCard.classList.add('doctor-card');
+                    doctorCard.dataset.id = doctor.id;
+                    
+                    doctorCard.innerHTML = `
+                        <div class="doctor-avatar">👨‍⚕️</div>
+                        <div class="doctor-details">
+                            <h2>${doctor.name}</h2>
+                            <p class="specialty">${doctor.specialty}</p>
+                            <p class="rating">⭐ ${doctor.rating}</p>
+                        </div>
+                    `;
+                    
+                    doctorCard.addEventListener('click', () => {
+                        document.querySelectorAll('.doctor-card').forEach(card => {
+                            card.classList.remove('selected');
+                        });
+                        doctorCard.classList.add('selected');
+                        
+                        selectDoctor(doctor);
+                    });
+                    
+                    doctorsList.appendChild(doctorCard);
+                });
+            }
+
+            // Función para filtrar doctores por especialidad
+            function filterDoctors() {
+                const specialty = specialtyFilter.value;
+                
+                if (specialty) {
+                    const filteredDoctors = doctors.filter(doctor => doctor.specialty === specialty);
+                    renderDoctorsList(filteredDoctors);
+                } else {
+                    renderDoctorsList(doctors);
+                }
+            }
+
+            // Función para seleccionar un doctor
+            function selectDoctor(doctor) {
+                selectedDoctor = doctor;
+                selectedDate = null;
+                selectedTime = null;
+                
+                // Mostrar el horario del doctor
+                let scheduleHTML = "";
+                doctor.schedule.forEach(schedule => {
+                    scheduleHTML += `<div class="schedule-item"><span>${schedule.day}:</span> <span>${schedule.hours}</span></div>`;
+                });
+                
+                scheduleDetails.innerHTML = scheduleHTML;
+                
+                // Actualizar la interfaz
+                renderCalendar(currentMonth, currentYear);
+                updateConfirmButton();
+                slotsContainer.innerHTML = '<div class="no-slots-message">Selecciona una fecha para ver los horarios disponibles</div>';
+            }
+
+            // Función para renderizar el calendario
+            function renderCalendar(month, year) {
+                // Actualizar el encabezado del mes
+                const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+                    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+                ];
+                currentMonthElement.textContent = `${monthNames[month]} ${year}`;
+
+                // Obtener el primer día del mes y la cantidad de días
+                const firstDay = new Date(year, month, 1).getDay();
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+                // Ajustar para que la semana comience en lunes
+                let startDay = firstDay === 0 ? 6 : firstDay - 1;
+
+                // Limpiar el grid de días
+                daysGrid.innerHTML = "";
+
+                // Agregar días vacíos al inicio si es necesario
+                for (let i = 0; i < startDay; i++) {
+                    const emptyDay = document.createElement('div');
+                    emptyDay.classList.add('day', 'empty');
+                    daysGrid.appendChild(emptyDay);
+                }
+
+                // Agregar los días del mes
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const dayElement = document.createElement('div');
+                    dayElement.classList.add('day');
+                    dayElement.textContent = day;
+
+                    const date = new Date(year, month, day);
+                    
+                    // Comprobar si es hoy
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    if (date.getTime() === today.getTime()) {
+                        dayElement.classList.add('today');
+                    }
+                    
+                    // Comprobar si el día está disponible según el horario del doctor
+                    if (selectedDoctor) {
+                        const dayOfWeek = getDayOfWeekInSpanish(date.getDay());
+                        const isAvailable = isDoctorAvailable(selectedDoctor, dayOfWeek);
+                        
+                        if (isAvailable) {
+                            dayElement.classList.add('available');
+                            
+                            // Resaltar si está seleccionado
+                            if (selectedDate && 
+                                selectedDate.getDate() === date.getDate() &&
+                                selectedDate.getMonth() === date.getMonth() &&
+                                selectedDate.getFullYear() === date.getFullYear()) {
+                                dayElement.classList.add('selected');
+                            }
+                            
+                            dayElement.addEventListener('click', () => selectDate(date));
+                        } else {
+                            dayElement.classList.add('unavailable');
+                        }
+                    } else {
+                        dayElement.classList.add('unavailable');
+                    }
+
+                    daysGrid.appendChild(dayElement);
+                }
+            }
+
+            // Función para comprobar si el doctor trabaja en un día específico
+            function isDoctorAvailable(doctor, dayOfWeek) {
+                return doctor.schedule.some(schedule => schedule.day === dayOfWeek);
+            }
+
+            // Función para obtener el nombre del día en español
+            function getDayOfWeekInSpanish(dayIndex) {
+                const days = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
+                return days[dayIndex === 0 ? 6 : dayIndex - 1]; // Ajuste para que Domingo sea el último
+            }
+
+            // Función para seleccionar una fecha
+            function selectDate(date) {
+                selectedDate = date;
+                selectedTime = null;
+                
+                // Actualizar la interfaz
+                const dateString = date.toLocaleDateString('es-ES', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+                selectedDateElement.textContent = dateString;
+                
+                // Renderizar horarios disponibles
+                renderTimeSlots();
+                
+                // Actualizar el calendario
+                renderCalendar(currentMonth, currentYear);
+                
+                // Actualizar el botón de confirmación
+                updateConfirmButton();
+            }
+
+            // Función para renderizar los horarios disponibles
+            function renderTimeSlots() {
+                slotsContainer.innerHTML = "";
+                
+                if (!selectedDoctor || !selectedDate) return;
+                
+                // Obtener el día de la semana en español
+                const dayOfWeek = getDayOfWeekInSpanish(selectedDate.getDay());
+                
+                // Buscar el horario del doctor para este día
+                const daySchedule = selectedDoctor.schedule.find(s => s.day === dayOfWeek);
+                
+                if (!daySchedule) {
+                    slotsContainer.innerHTML = '<div class="no-slots-message">El doctor no atiende este día</div>';
+                    return;
+                }
+                
+                // Parsear los horarios
+                const timeRanges = daySchedule.hours.split(', ');
+                let allTimeSlots = [];
+                
+                timeRanges.forEach(range => {
+                    const [start, end] = range.split(' - ');
+                    const slots = generateTimeSlots(start, end);
+                    allTimeSlots = [...allTimeSlots, ...slots];
+                });
+                
+                // Simular que algunos horarios ya están ocupados
+                const unavailableSlots = [];
+                if (allTimeSlots.length > 2) {
+                    unavailableSlots.push(allTimeSlots[2]);
+                    if (allTimeSlots.length > 5) unavailableSlots.push(allTimeSlots[5]);
+                    if (allTimeSlots.length > 8) unavailableSlots.push(allTimeSlots[8]);
+                }
+                
+                if (allTimeSlots.length === 0) {
+                    slotsContainer.innerHTML = '<div class="no-slots-message">No hay horarios disponibles para este día</div>';
+                    return;
+                }
+                
+                allTimeSlots.forEach(slot => {
+                    const slotElement = document.createElement('div');
+                    slotElement.classList.add('time-slot');
+                    slotElement.textContent = slot;
+                    
+                    if (unavailableSlots.includes(slot)) {
+                        slotElement.classList.add('unavailable');
+                    } else {
+                        if (selectedTime === slot) {
+                            slotElement.classList.add('selected');
+                        }
+                        
+                        slotElement.addEventListener('click', () => {
+                            selectedTime = slot;
+                            renderTimeSlots();
+                            updateConfirmButton();
+                        });
+                    }
+                    
+                    slotsContainer.appendChild(slotElement);
+                });
+            }
+
+            // Función para generar los horarios entre una hora de inicio y fin
+            function generateTimeSlots(start, end) {
+                const slots = [];
+                const [startHour, startMinute] = start.split(':').map(Number);
+                const [endHour, endMinute] = end.split(':').map(Number);
+                
+                let currentHour = startHour;
+                let currentMinute = startMinute;
+                
+                while (currentHour < endHour || (currentHour === endHour && currentMinute < endMinute)) {
+                    // Formatear la hora
+                    const period = currentHour >= 12 ? 'PM' : 'AM';
+                    const displayHour = currentHour > 12 ? currentHour - 12 : currentHour;
+                    const timeString = `${displayHour}:${currentMinute.toString().padStart(2, '0')} ${period}`;
+                    
+                    slots.push(timeString);
+                    
+                    // Avanzar 30 minutos
+                    currentMinute += 30;
+                    if (currentMinute >= 60) {
+                        currentMinute = 0;
+                        currentHour++;
+                    }
+                }
+                
+                return slots;
+            }
+
+            // Función para actualizar el estado del botón de confirmación
+            function updateConfirmButton() {
+                confirmButton.disabled = !(selectedDoctor && selectedDate && selectedTime);
+            }
+
+            // Función para mostrar notificación
+            function showNotification() {
+                notification.classList.add('show');
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+
+            // Función para establecer la fecha actual en el filtro
+            function setCurrentDateFilter() {
+                const today = new Date();
+                const year = today.getFullYear();
+                const month = (today.getMonth() + 1).toString().padStart(2, '0');
+                const day = today.getDate().toString().padStart(2, '0');
+                dateFilter.value = `${year}-${month}-${day}`;
+            }
+        });
+    </script>
+</body>
+</html>
