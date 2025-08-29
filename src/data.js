@@ -10,10 +10,10 @@ export const specialties = [
 
 export const doctors = [
   // Cardiología (8 doctores)
-  { 
-    id: 1, 
-    name: "Dr. Juan Pérez", 
-    specialty: "Cardiología", 
+  {
+    id: 1,
+    name: "Dr. Juan Pérez",
+    specialty: "Cardiología",
     rating: 4.8,
     schedule: [
       { day: "Lunes", hours: "08:30 - 12:00, 14:00 - 17:00" },
@@ -21,20 +21,20 @@ export const doctors = [
       { day: "Viernes", hours: "08:30 - 12:00" }
     ]
   },
-  { 
-    id: 2, 
-    name: "Dra. Elena Morales", 
-    specialty: "Cardiología", 
+  {
+    id: 2,
+    name: "Dra. Elena Morales",
+    specialty: "Cardiología",
     rating: 4.9,
     schedule: [
       { day: "Martes", hours: "09:00 - 13:00, 15:00 - 18:00" },
       { day: "Jueves", hours: "09:00 - 13:00, 15:00 - 18:00" }
     ]
   },
-  { 
-    id: 3, 
-    name: "Dr. Ricardo Torres", 
-    specialty: "Cardiología", 
+  {
+    id: 3,
+    name: "Dr. Ricardo Torres",
+    specialty: "Cardiología",
     rating: 4.7,
     schedule: [
       { day: "Lunes", hours: "10:00 - 14:00" },
@@ -42,10 +42,10 @@ export const doctors = [
       { day: "Viernes", hours: "10:00 - 13:00" }
     ]
   },
-  { 
-    id: 4, 
-    name: "Dra. Carmen Ruiz", 
-    specialty: "Cardiología", 
+  {
+    id: 4,
+    name: "Dra. Carmen Ruiz",
+    specialty: "Cardiología",
     rating: 4.6,
     schedule: [
       { day: "Martes", hours: "08:00 - 12:00" },
@@ -55,10 +55,10 @@ export const doctors = [
   },
 
   // Dermatología (6 doctores)
-  { 
-    id: 5, 
-    name: "Dra. María García", 
-    specialty: "Dermatología", 
+  {
+    id: 5,
+    name: "Dra. María García",
+    specialty: "Dermatología",
     rating: 4.9,
     schedule: [
       { day: "Martes", hours: "09:00 - 13:00, 15:00 - 18:00" },
@@ -66,20 +66,20 @@ export const doctors = [
       { day: "Sábado", hours: "09:00 - 12:00" }
     ]
   },
-  { 
-    id: 6, 
-    name: "Dr. Carlos Mendoza", 
-    specialty: "Dermatología", 
+  {
+    id: 6,
+    name: "Dr. Carlos Mendoza",
+    specialty: "Dermatología",
     rating: 4.7,
     schedule: [
       { day: "Lunes", hours: "08:00 - 16:00" },
       { day: "Miércoles", hours: "08:00 - 16:00" }
     ]
   },
-  { 
-    id: 7, 
-    name: "Dra. Laura Hernández", 
-    specialty: "Dermatología", 
+  {
+    id: 7,
+    name: "Dra. Laura Hernández",
+    specialty: "Dermatología",
     rating: 4.8,
     schedule: [
       { day: "Martes", hours: "10:00 - 14:00" },
@@ -89,10 +89,10 @@ export const doctors = [
   },
 
   // Pediatría (7 doctores)
-  { 
-    id: 8, 
-    name: "Dr. Carlos López", 
-    specialty: "Pediatría", 
+  {
+    id: 8,
+    name: "Dr. Carlos López",
+    specialty: "Pediatría",
     rating: 4.7,
     schedule: [
       { day: "Lunes", hours: "08:00 - 16:00" },
@@ -102,10 +102,10 @@ export const doctors = [
       { day: "Viernes", hours: "08:00 - 14:00" }
     ]
   },
-  { 
-    id: 9, 
-    name: "Dra. Sofia Ramirez", 
-    specialty: "Pediatría", 
+  {
+    id: 9,
+    name: "Dra. Sofia Ramirez",
+    specialty: "Pediatría",
     rating: 4.9,
     schedule: [
       { day: "Lunes", hours: "09:00 - 13:00" },
@@ -113,10 +113,10 @@ export const doctors = [
       { day: "Viernes", hours: "09:00 - 13:00" }
     ]
   },
-  { 
-    id: 10, 
-    name: "Dr. Javier Ortega", 
-    specialty: "Pediatría", 
+  {
+    id: 10,
+    name: "Dr. Javier Ortega",
+    specialty: "Pediatría",
     rating: 4.6,
     schedule: [
       { day: "Martes", hours: "14:00 - 18:00" },
@@ -126,10 +126,10 @@ export const doctors = [
   },
 
   // Ginecología (5 doctoras)
-  { 
-    id: 11, 
-    name: "Dra. Ana Rodríguez", 
-    specialty: "Ginecología", 
+  {
+    id: 11,
+    name: "Dra. Ana Rodríguez",
+    specialty: "Ginecología",
     rating: 4.6,
     schedule: [
       { day: "Lunes", hours: "10:00 - 13:00, 16:00 - 19:00" },
@@ -137,10 +137,10 @@ export const doctors = [
       { day: "Viernes", hours: "10:00 - 13:00" }
     ]
   },
-  { 
-    id: 12, 
-    name: "Dra. Patricia Castro", 
-    specialty: "Ginecología", 
+  {
+    id: 12,
+    name: "Dra. Patricia Castro",
+    specialty: "Ginecología",
     rating: 4.8,
     schedule: [
       { day: "Martes", hours: "09:00 - 13:00" },
@@ -148,10 +148,10 @@ export const doctors = [
       { day: "Sábado", hours: "09:00 - 12:00" }
     ]
   },
-  { 
-    id: 13, 
-    name: "Dra. Veronica Silva", 
-    specialty: "Ginecología", 
+  {
+    id: 13,
+    name: "Dra. Veronica Silva",
+    specialty: "Ginecología",
     rating: 4.7,
     schedule: [
       { day: "Lunes", hours: "14:00 - 18:00" },
@@ -161,10 +161,10 @@ export const doctors = [
   },
 
   // Ortopedia (6 doctores)
-  { 
-    id: 14, 
-    name: "Dr. Miguel Sánchez", 
-    specialty: "Ortopedia", 
+  {
+    id: 14,
+    name: "Dr. Miguel Sánchez",
+    specialty: "Ortopedia",
     rating: 4.5,
     schedule: [
       { day: "Martes", hours: "18:00 - 20:00" },
@@ -172,10 +172,10 @@ export const doctors = [
       { day: "Sábado", hours: "09:00 - 11:00" }
     ]
   },
-  { 
-    id: 15, 
-    name: "Dr. Roberto Díaz", 
-    specialty: "Ortopedia", 
+  {
+    id: 15,
+    name: "Dr. Roberto Díaz",
+    specialty: "Ortopedia",
     rating: 4.8,
     schedule: [
       { day: "Lunes", hours: "08:00 - 12:00" },
@@ -183,10 +183,10 @@ export const doctors = [
       { day: "Viernes", hours: "08:00 - 12:00" }
     ]
   },
-  { 
-    id: 16, 
-    name: "Dra. Carolina Rojas", 
-    specialty: "Ortopedia", 
+  {
+    id: 16,
+    name: "Dra. Carolina Rojas",
+    specialty: "Ortopedia",
     rating: 4.7,
     schedule: [
       { day: "Martes", hours: "14:00 - 18:00" },
@@ -195,10 +195,10 @@ export const doctors = [
   },
 
   // Odontología (12 doctores)
-  { 
-    id: 17, 
-    name: "Dr. Roberto Martínez", 
-    specialty: "Odontología", 
+  {
+    id: 17,
+    name: "Dr. Roberto Martínez",
+    specialty: "Odontología",
     rating: 4.8,
     schedule: [
       { day: "Lunes", hours: "08:30 - 12:30, 15:00 - 18:00" },
@@ -206,10 +206,10 @@ export const doctors = [
       { day: "Viernes", hours: "08:30 - 12:30" }
     ]
   },
-  { 
-    id: 18, 
-    name: "Dra. Laura Fernández", 
-    specialty: "Odontología", 
+  {
+    id: 18,
+    name: "Dra. Laura Fernández",
+    specialty: "Odontología",
     rating: 4.9,
     schedule: [
       { day: "Martes", hours: "09:00 - 13:00, 16:00 - 19:00" },
@@ -217,10 +217,10 @@ export const doctors = [
       { day: "Sábado", hours: "09:00 - 13:00" }
     ]
   },
-  { 
-    id: 19, 
-    name: "Dr. Javier Gómez", 
-    specialty: "Odontología", 
+  {
+    id: 19,
+    name: "Dr. Javier Gómez",
+    specialty: "Odontología",
     rating: 4.7,
     schedule: [
       { day: "Lunes", hours: "10:00 - 14:00" },
@@ -228,10 +228,10 @@ export const doctors = [
       { day: "Viernes", hours: "10:00 - 13:00" }
     ]
   },
-  { 
-    id: 20, 
-    name: "Dra. Carmen Vargas", 
-    specialty: "Odontología", 
+  {
+    id: 20,
+    name: "Dra. Carmen Vargas",
+    specialty: "Odontología",
     rating: 4.6,
     schedule: [
       { day: "Martes", hours: "08:00 - 12:00" },
@@ -239,10 +239,10 @@ export const doctors = [
       { day: "Sábado", hours: "09:00 - 12:00" }
     ]
   },
-  { 
-    id: 21, 
-    name: "Dr. Andrés Castro", 
-    specialty: "Odontología", 
+  {
+    id: 21,
+    name: "Dr. Andrés Castro",
+    specialty: "Odontología",
     rating: 4.5,
     schedule: [
       { day: "Lunes", hours: "14:00 - 18:00" },
@@ -250,10 +250,10 @@ export const doctors = [
       { day: "Viernes", hours: "14:00 - 17:00" }
     ]
   },
-  { 
-    id: 22, 
-    name: "Dra. Sofia Rojas", 
-    specialty: "Odontología", 
+  {
+    id: 22,
+    name: "Dra. Sofia Rojas",
+    specialty: "Odontología",
     rating: 4.9,
     schedule: [
       { day: "Martes", hours: "09:00 - 13:00" },

@@ -1,13 +1,10 @@
-// contexts/AuthContext.jsx
 import { createContext, useContext, useState, useEffect } from 'react';
 
 const AuthContext = createContext();
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth debe ser usado dentro de un AuthProvider');
-  }
+  if (!context) throw new Error('useAuth debe ser usado dentro de AuthProvider');
   return context;
 };
 
@@ -16,44 +13,44 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Verificar si hay usuario logueado al cargar
     const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
+    if (savedUser) setUser(JSON.parse(savedUser));
     setLoading(false);
   }, []);
 
-  const login = (userData) => {
-    const userWithRole = { ...userData, role: 'user' };
-    setUser(userWithRole);
-    localStorage.setItem('user', JSON.stringify(userWithRole));
+  const login = async ({ email, password, model }) => {
+    const res = await fetch('https://nn-oe-jm-welcome.trycloudflare.com/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, model })
+    });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.mensaje);
+    setUser(data.user);
+    localStorage.setItem('user', JSON.stringify(data.user));
   };
 
-  const register = (userData) => {
-    const userWithRole = { ...userData, role: 'user' };
-    setUser(userWithRole);
-    localStorage.setItem('user', JSON.stringify(userWithRole));
-  };
+  const register = async (userData) => {
+  // userData = { model, name, email, password, phone }
+  const response = await fetch('https://nn-oe-jm-welcome.trycloudflare.com/auth/register', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(userData)
+  });
+
+  if (!response.ok) throw new Error('Error al registrar');
+  const data = await response.json();
+  setUser(data.user);
+  localStorage.setItem('user', JSON.stringify(data.user));
+};
 
   const logout = () => {
     setUser(null);
     localStorage.removeItem('user');
   };
 
-  const value = {
-    user,
-    login,
-    register,
-    logout,
-    loading,
-    isGuest: !user,
-    isUser: user && user.role === 'user',
-    isAdmin: user && user.role === 'admin'
-  };
-
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider value={{ user, login, register, logout, loading, isGuest: !user }}>
       {children}
     </AuthContext.Provider>
   );

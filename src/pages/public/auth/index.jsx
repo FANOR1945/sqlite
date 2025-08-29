@@ -3,153 +3,88 @@ import { useAuth } from '../../../contexts/AuthContext';
 import GenericModal from '../../../components/generic/GenericModal';
 import useForm from '../../../hooks/useForm';
 
-// Validaciones
+// Validaciones simplificadas pero completas
 const validators = {
-  name: (value) => {
-    if (!value.trim()) return 'El nombre es requerido';
-    if (value.length < 2) return 'El nombre debe tener al menos 2 caracteres';
-    return '';
-  },
-  email: (value) => {
-    if (!value) return 'El email es requerido';
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(value)) return 'Email inválido';
-    return '';
-  },
-  phone: (value) => {
-    if (!value) return 'El teléfono es requerido';
-    const phoneRegex = /^[0-9+\-\s()]{10,}$/;
-    if (!phoneRegex.test(value)) return 'Teléfono inválido';
-    return '';
-  },
-  password: (value) => {
-    if (!value) return 'La contraseña es requerida';
-    if (value.length < 6) return 'La contraseña debe tener al menos 6 caracteres';
-    return '';
-  }
+  name: v => !v.trim() ? 'Requerido' : v.length < 2 ? 'Mínimo 2 caracteres' : '',
+  email: v => !v ? 'Requerido' : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? 'Email inválido' : '',
+  phone: v => !v ? 'Requerido' : !/^[0-9+\-\s()]{10,}$/.test(v) ? 'Teléfono inválido' : '',
+  password: v => !v ? 'Requerido' : v.length < 6 ? 'Mínimo 6 caracteres' : ''
 };
 
 const Auth = ({ isOpen, onClose, mode = 'login', onSwitchMode }) => {
   const { login, register, isLoading, error: authError } = useAuth();
-  
-  const { formValues, errors, handleInputChange, resetForm, validateForm } = useForm(
+
+  const { formValues, errors, handleInputChange, validateForm, resetForm } = useForm(
     { name: '', email: '', password: '', phone: '' },
-    mode === 'login' ? { email: validators.email, password: validators.password } : validators
+    mode === 'login' 
+      ? { email: validators.email, password: validators.password } 
+      : validators
   );
 
-  const handleSubmit = useCallback(async (e) => {
+  const handleSubmit = useCallback(async e => {
     e.preventDefault();
     if (!validateForm()) return;
 
     try {
       if (mode === 'login') {
-        await login(formValues.email, formValues.password);
+        await login({ email: formValues.email, password: formValues.password });
       } else {
-        await register({
-          name: formValues.name,
-          email: formValues.email,
-          password: formValues.password,
-          phone: formValues.phone
-        });
+        await register({ ...formValues });
       }
       resetForm();
       onClose();
-    } catch (error) {
-      console.error('Authentication error:', error);
+    } catch (err) {
+      alert(err.message);
     }
   }, [formValues, mode, login, register, validateForm, resetForm, onClose]);
-
-  const handleClose = useCallback(() => {
-    resetForm();
-    onClose();
-  }, [resetForm, onClose]);
 
   return (
     <GenericModal
       isOpen={isOpen}
-      onClose={handleClose}
+      onClose={() => { resetForm(); onClose(); }}
       title={mode === 'login' ? 'Iniciar Sesión' : 'Crear Cuenta'}
       size="small"
     >
       {authError && <div className="error-message">{authError}</div>}
 
-      <div className="auth-form-wrapper">
-        <form onSubmit={handleSubmit} className="auth-form" noValidate>
-          {mode === 'register' && (
-            <div className="form-group">
-              <label htmlFor="name">Nombre completo:</label>
-              <input
-                id="name"
-                type="text"
-                name="name"
-                value={formValues.name}
-                onChange={handleInputChange}
-                required
-              />
-              {errors.name && <span className="error-text">{errors.name}</span>}
-            </div>
-          )}
-
+      <form onSubmit={handleSubmit} className="auth-form">
+        {mode === 'register' && (
           <div className="form-group">
-            <label htmlFor="email">Email:</label>
-            <input
-              id="email"
-              type="email"
-              name="email"
-              value={formValues.email}
-              onChange={handleInputChange}
-              required
-            />
-            {errors.email && <span className="error-text">{errors.email}</span>}
+            <label>Nombre completo:</label>
+            <input name="name" value={formValues.name} onChange={handleInputChange} />
+            {errors.name && <span className="error-text">{errors.name}</span>}
           </div>
+        )}
 
-          {mode === 'register' && (
-            <div className="form-group">
-              <label htmlFor="phone">Teléfono:</label>
-              <input
-                id="phone"
-                type="tel"
-                name="phone"
-                value={formValues.phone}
-                onChange={handleInputChange}
-                required
-              />
-              {errors.phone && <span className="error-text">{errors.phone}</span>}
-            </div>
-          )}
+        <div className="form-group">
+          <label>Email:</label>
+          <input name="email" value={formValues.email} onChange={handleInputChange} />
+          {errors.email && <span className="error-text">{errors.email}</span>}
+        </div>
 
+        {mode === 'register' && (
           <div className="form-group">
-            <label htmlFor="password">Contraseña:</label>
-            <input
-              id="password"
-              type="password"
-              name="password"
-              value={formValues.password}
-              onChange={handleInputChange}
-              required
-            />
-            {errors.password && <span className="error-text">{errors.password}</span>}
+            <label>Teléfono:</label>
+            <input name="phone" value={formValues.phone} onChange={handleInputChange} />
+            {errors.phone && <span className="error-text">{errors.phone}</span>}
           </div>
+        )}
 
-          <button 
-            type="submit" 
-            className="confirm-button full-width"
-            disabled={isLoading}
-          >
-            {isLoading ? 'Cargando...' : mode === 'login' ? 'Iniciar Sesión' : 'Registrarse'}
-          </button>
-        </form>
-      </div>
+        <div className="form-group">
+          <label>Contraseña:</label>
+          <input type="password" name="password" value={formValues.password} onChange={handleInputChange} />
+          {errors.password && <span className="error-text">{errors.password}</span>}
+        </div>
+
+        <button type="submit" disabled={isLoading} className="confirm-button full-width">
+          {isLoading ? 'Cargando...' : mode === 'login' ? 'Iniciar Sesión' : 'Registrarse'}
+        </button>
+      </form>
 
       <p className="auth-switch">
-        {mode === 'login' ? '¿No tienes cuenta? ' : '¿Ya tienes cuenta? '}
-        <button 
-          type="button" 
-          onClick={onSwitchMode} 
-          className="auth-link"
-          disabled={isLoading}
-        >
-          {mode === 'login' ? 'Regístrate aquí' : 'Inicia sesión aquí'}
+        {mode === 'login' ? '¿No tienes cuenta?' : '¿Ya tienes cuenta?'}
+        <button type="button" onClick={onSwitchMode} disabled={isLoading} className="auth-link">
+          {mode === 'login' ? 'Registrarse' : 'Iniciar Sesión'}
         </button>
       </p>
     </GenericModal>

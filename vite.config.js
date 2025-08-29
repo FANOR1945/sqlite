@@ -5,10 +5,14 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
+    host: true, // Esto hace que Vite escuche en 0.0.0.0
+    port: 5173, // Puedes especificar el puerto
+    strictPort: false,
     allowedHosts: [
-      '5173.homidominio.ddns.net', // Agrega tu host aquí
-      'homidominio.ddns.net',      // También podrías necesitar el dominio sin el puerto
-      'localhost',                 // Para mantener el acceso local
+      '5173.homidominio.ddns.net',
+      'homidominio.ddns.net',
+      'philips-reference-alliance-chains.trycloudflare.com',
+      'localhost',
     ]
   }
 })
