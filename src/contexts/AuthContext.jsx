@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async ({ email, password, model }) => {
-    const res = await fetch('https://nn-oe-jm-welcome.trycloudflare.com/auth/login', {
+    const res = await fetch('https://grad-astronomy-jersey-prince.trycloudflare.com/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password, model })
@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
   // userData = { model, name, email, password, phone }
-  const response = await fetch('https://nn-oe-jm-welcome.trycloudflare.com/auth/register', {
+  const response = await fetch('https://grad-astronomy-jersey-prince.trycloudflare.com/auth/register', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(userData)

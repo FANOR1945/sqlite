@@ -11,7 +11,7 @@ export default defineConfig({
     allowedHosts: [
       '5173.homidominio.ddns.net',
       'homidominio.ddns.net',
-      'philips-reference-alliance-chains.trycloudflare.com',
+      'restaurant-logical-tremendous-foundations.trycloudflare.com',
       'localhost',
     ]
   }
