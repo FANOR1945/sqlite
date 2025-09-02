@@ -7,7 +7,7 @@ import Profile from './pages/private/common/Profile';
 import Dashboard from './pages/private/common/Dashboard';
 import Home from './pages/public/Home'; // Nueva página Home
 import GenericHeader from './components/generic/GenericHeader';
-import GenericFooter from './components/generic/GenericFooter';
+
 
 import './App.css';
 import { useState } from 'react';

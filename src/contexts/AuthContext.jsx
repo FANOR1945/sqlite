@@ -14,6 +14,7 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     // Verificar si hay usuario logueado al cargar
@@ -24,16 +25,74 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  const login = (userData) => {
-    const userWithRole = { ...userData, role: 'user' };
-    setUser(userWithRole);
-    localStorage.setItem('user', JSON.stringify(userWithRole));
+  const login = async (email, password) => {
+    try {
+      setLoading(true);
+      setError('');
+      
+      // Simulación de login (en una app real, esto sería una llamada a la API)
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      const user = users.find(u => u.email === email && u.password === password);
+      
+      if (!user) {
+        throw new Error('Credenciales inválidas');
+      }
+      
+      // Eliminamos la contraseña del objeto de usuario para almacenarlo
+      const { password: _, ...userWithoutPassword } = user;
+      setUser(userWithoutPassword);
+      localStorage.setItem('user', JSON.stringify(userWithoutPassword));
+      
+      return userWithoutPassword;
+    } catch (error) {
+      setError(error.message);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const register = (userData) => {
-    const userWithRole = { ...userData, role: 'user' };
-    setUser(userWithRole);
-    localStorage.setItem('user', JSON.stringify(userWithRole));
+  const register = async (userData) => {
+    try {
+      setLoading(true);
+      setError('');
+      
+      // Validar que el rol sea válido
+      const validRoles = ['patient', 'doctor', 'manager', 'admin'];
+      if (!validRoles.includes(userData.role)) {
+        throw new Error('Rol de usuario inválido');
+      }
+      
+      // Simulación de registro (en una app real, esto sería una llamada a la API)
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      
+      // Verificar si el usuario ya existe
+      if (users.some(u => u.email === userData.email)) {
+        throw new Error('El usuario ya existe');
+      }
+      
+      // Crear nuevo usuario
+      const newUser = {
+        id: Date.now().toString(),
+        ...userData,
+        createdAt: new Date().toISOString()
+      };
+      
+      users.push(newUser);
+      localStorage.setItem('users', JSON.stringify(users));
+      
+      // Eliminamos la contraseña del objeto de usuario para almacenarlo
+      const { password, ...userWithoutPassword } = newUser;
+      setUser(userWithoutPassword);
+      localStorage.setItem('user', JSON.stringify(userWithoutPassword));
+      
+      return userWithoutPassword;
+    } catch (error) {
+      setError(error.message);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
   };
 
   const logout = () => {
@@ -47,8 +106,11 @@ export const AuthProvider = ({ children }) => {
     register,
     logout,
     loading,
+    error,
     isGuest: !user,
-    isUser: user && user.role === 'user',
+    isPatient: user && user.role === 'patient',
+    isDoctor: user && user.role === 'doctor',
+    isManager: user && user.role === 'manager',
     isAdmin: user && user.role === 'admin'
   };
 

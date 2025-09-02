@@ -1,0 +1,8 @@
+admin1@gmail.com
+
+gerente1@gmail.com
+
+doctor2@gmail.com
+
+paciente1@gmail.com
+password : homi19990
