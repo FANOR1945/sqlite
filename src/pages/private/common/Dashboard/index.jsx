@@ -1,18 +1,21 @@
 import React from 'react';
-import GenericHero from '../../../../components/generic/GenericHero';
-import GenericSection from '../../../../components/generic/GenericSection';
-import GenericCard from '../../../../components/generic/GenericCard';
+import { useAuth } from '../../../../contexts/AuthContext';
 import AdminDashboard from './AdminDashboard';
 import ManagerDashboard from './ManagerDashboard';
 import DoctorDashboard from './DoctorDashboard';
 import PatientDashboard from './PatientDashboard';
 import './styles.css';
 
-const Dashboard = ({ onNewReservation, user, reservations }) => {
-  // Determinar el dashboard a mostrar según el rol
+const Dashboard = ({ onNewReservation, reservations }) => {
+  // 🔹 Usar AuthContext para obtener usuario y roles
+  const { user, roles } = useAuth();
+
   const renderDashboardByRole = () => {
-    switch(user.role) {
-      case 'admin':
+    // Tomamos solo el primer rol principal
+    const role = roles[0];
+
+    switch (role) {
+      case 'administrador':
         return <AdminDashboard user={user} />;
       case 'manager':
         return <ManagerDashboard user={user} />;
@@ -21,20 +24,16 @@ const Dashboard = ({ onNewReservation, user, reservations }) => {
       case 'patient':
       default:
         return (
-          <PatientDashboard 
-            user={user} 
-            reservations={reservations} 
-            onNewReservation={onNewReservation} 
+          <PatientDashboard
+            user={user}
+            reservations={reservations}
+            onNewReservation={onNewReservation}
           />
         );
     }
   };
 
-  return (
-    <div className="dashboard">
-      {renderDashboardByRole()}
-    </div>
-  );
+  return <div className="dashboard">{renderDashboardByRole()}</div>;
 };
 
 export default Dashboard;

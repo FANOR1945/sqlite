@@ -8,7 +8,7 @@ export default defineConfig({
     allowedHosts: [
       '5173.homidominio.ddns.net', // Agrega tu host aquí
       'homidominio.ddns.net',
-      'restaurant-logical-tremendous-foundations.trycloudflare.com',      // También podrías necesitar el dominio sin el puerto
+      'retail-trained-seventh-sound.trycloudflare.com',      // También podrías necesitar el dominio sin el puerto
       'localhost',                 // Para mantener el acceso local
     ]
   }
