@@ -1,209 +1,232 @@
-// App.js
+import { useState } from 'react';
 import { useAuth } from './contexts/AuthContext';
-import { useReservation } from './contexts/ReservationContext';
 import { useNestedModal } from './contexts/NestedModalContext';
-import Auth from './pages/public/auth';
-import Profile from './pages/private/common/Profile';
-import Dashboard from './pages/private/common/Dashboard';
-import Home from './pages/public/Home';
-import GenericHeader from './components/generic/GenericHeader';
-
-import './App.css';
-import { useState, useEffect } from 'react';
-import Reservation from './pages/private/common/Appointment';
-
-// Debug tools
-import { useDebug, DebugConsole } from './debug';
+import { useDebug } from './debug';
 import { useStoreState } from './hooks/useStore';
+import { useReservation } from './contexts/ReservationContext';
+
+import MedicalAppointment from './app/MedicalAppointment';
+import NestedModal from './components/nested/Modal';
+import GenericHeader from './components/generic/GenericHeader';
+import GenericFooter from './components/generic/GenericFooter';
+import GenericSection from './components/generic/GenericSection';
+import GenericCard from './components/generic/GenericCard';
+import Home from './pages/public/Home';
+import Auth from './pages/public/auth';
+import Dashboard from './pages/private/common/Dashboard';
+import Reservation from './pages/private/common/Appointment';
 import { TreeViewer } from './tools/treeView';
+import './App.css';
 
 function App() {
-  const { user, logout, isGuest } = useAuth();
-  const { addReservation, getUserReservations } = useReservation();
-
-  // Debug
-  const { debugLog, debugMode, toggleDebug } = useDebug();
-
-  // Redux global state
+  const { debugMode } = useDebug();
   const appState = useStoreState();
+  const { user, isGuest } = useAuth();
+  const { addReservation } = useReservation();
+  const { openModal, closeModal, isModalOpen, closeAllModals } =
+    useNestedModal();
 
-  // Modales
-  const { openModal, closeModal, isModalOpen } = useNestedModal();
-
-  // Local state
   const [authModalMode, setAuthModalMode] = useState('login');
   const [pendingReservation, setPendingReservation] = useState(null);
 
-  // Logs iniciales y dependientes de `user`
-  useEffect(() => {
-    debugLog('App component mounted', 'info');
-    debugLog(`User state: ${JSON.stringify(user)}`, 'log');
-
-    if (user) {
-      const userReservations = getUserReservations();
-      debugLog(`User has ${userReservations.length} reservations`, 'log');
-    }
-  }, [user, debugLog, getUserReservations]);
-
-  // Funciones de modales
-  const openReservationModal = () => {
-    debugLog('Opening reservation modal', 'info');
-    openModal('reservation');
-  };
-
-  const closeReservationModal = () => {
-    debugLog('Closing reservation modal', 'info');
-    closeModal('reservation');
-    setPendingReservation(null);
-  };
-
-  const openAuthModal = (mode = 'login') => {
-    debugLog(`Opening auth modal in mode: ${mode}`, 'info');
+  // 🔹 Funciones para abrir/cerrar modales
+  const openAuthModalApp = (mode = 'login') => {
     setAuthModalMode(mode);
     openModal('auth');
   };
+  const closeAuthModalApp = () => closeModal('auth');
 
-  const closeAuthModal = () => {
-    debugLog('Closing auth modal', 'info');
-    closeModal('auth');
-  };
+  const openMedicalApp = () => openModal('medicalApp');
+  const closeMedicalApp = () => closeModal('medicalApp');
 
-  const openProfile = () => {
-    debugLog('Opening profile modal', 'info');
-    openModal('profile');
-  };
-
-  const closeProfile = () => {
-    debugLog('Closing profile modal', 'info');
-    closeModal('profile');
-  };
-
-  const openFullScreenModal = () => {
-    debugLog('Opening fullscreen modal', 'info');
-    openModal('fullscreen');
-  };
-
-  const closeFullScreenModal = () => {
-    debugLog('Closing fullscreen modal', 'info');
-    closeModal('fullscreen');
-  };
-
-  const switchAuthMode = () => {
-    debugLog('Switching auth mode', 'info');
-    setAuthModalMode((prev) => (prev === 'login' ? 'register' : 'login'));
-  };
-
-  // Manejo de reservas
+  // 🔹 Función común para reservas
   const handleReservation = (reservationData) => {
-    debugLog('Handling reservation', 'info');
-    if (isGuest) {
-      debugLog('User is guest, redirecting to auth', 'info');
+    if (!user || isGuest) {
       setPendingReservation(reservationData);
-      closeReservationModal();
-      openAuthModal('register');
+      openAuthModalApp('register');
       return false;
     }
-
-    confirmUserReservation(reservationData);
+    const reservation = addReservation({ ...reservationData });
+    alert(`¡Reserva confirmada! Número de reserva: ${reservation.id}`);
+    closeModal('reservation');
     return true;
   };
 
-  const confirmUserReservation = (reservationData) => {
-    debugLog('Confirming user reservation', 'info');
-    const reservation = addReservation({
-      ...reservationData,
-      user: user,
-    });
-
-    debugLog(`Reservation confirmed with ID: ${reservation.id}`, 'success');
-    alert(`¡Reserva confirmada! Número de reserva: ${reservation.id}`);
-    closeReservationModal();
-  };
-
+  // 🔹 Función al login/registro exitoso
   const handleAuthSuccess = () => {
-    debugLog('Auth success, closing modal', 'info');
-    closeAuthModal();
-
+    closeAllModals();
     if (pendingReservation) {
-      debugLog('Pending reservation found, processing after auth', 'info');
       setTimeout(() => {
-        confirmUserReservation(pendingReservation);
+        handleReservation(pendingReservation);
         setPendingReservation(null);
       }, 500);
     }
   };
 
-  // Reservas del usuario
-  const userReservations = user ? getUserReservations() : [];
+  const headerItemsPublic = [
+    { label: 'Inicio', type: 'link', sectionId: 'inicio' },
+    { label: 'Servicios', type: 'link', sectionId: 'servicios' },
+    { label: '¿Cómo Funciona?', type: 'link', sectionId: 'como-funciona' },
+    {
+      label: 'Iniciar Sesión',
+      type: 'button',
+      onClick: () => openAuthModalApp('login'),
+    },
+  ];
+
+  const headerItemsModal = [
+    {
+      label: 'Iniciar Sesión',
+      type: 'button',
+      onClick: () => openAuthModalApp('login'),
+    },
+    {
+      label: 'Registrarse',
+      type: 'button',
+      onClick: () => openAuthModalApp('register'),
+    },
+  ];
+
+  const commonFooter = (
+    <GenericFooter
+      companyName='MediReserva'
+      tagline='Tu salud es nuestra prioridad'
+      contact={{ phone: '(123) 456-7890', email: 'info@medireserva.com' }}
+      hours={{
+        weekdays: 'Lunes a Viernes: 8:00 - 20:00',
+        weekends: 'Sábados: 9:00 - 14:00',
+      }}
+      copyright='© 2025 MediReserva. Todos los derechos reservados.'
+    />
+  );
 
   return (
-    <div className="App">
-      {/* Botón debug */}
-      <button
-        onClick={toggleDebug}
-        style={{
-          position: 'fixed',
-          bottom: '20px',
-          right: '10px',
-          padding: '10px 15px',
-          backgroundColor: debugMode ? '#4CAF50' : '#333',
-          color: 'white',
-          zIndex: 2500,
-          border: 'none',
-          cursor: 'pointer',
-          borderRadius: '5px',
-          fontWeight: 'bold',
-        }}
-      >
-        Debug {debugMode ? 'ON' : 'OFF'}
-      </button>
-
-      {/* Header */}
+    <div className='App'>
       <GenericHeader
-        title="Gran Potosí"
-        user={user}
-        onLogin={() => openAuthModal('login')}
-        onRegister={() => openAuthModal('register')}
-        onProfile={openProfile}
-        onLogout={logout}
-        theme={user ? 'authenticated' : 'medical'}
+        title='Sistema Médico Gran Potosí'
+        items={headerItemsPublic}
+        theme='medical'
       />
 
-      {/* Contenido principal */}
       {user ? (
         <Dashboard
-          onNewReservation={openReservationModal}
           user={user}
-          reservations={userReservations}
+          reservations={appState.reservations ?? []}
+          onNewReservation={openMedicalApp}
         />
       ) : (
-        <Home
-          openReservationModal={openReservationModal}
-          openFullScreenModal={openFullScreenModal}
-          isGuest={isGuest}
+        <Home>
+          <div
+            id='inicio'
+            className='banner-section'
+          >
+            <div className='banner-content'>
+              <h2>Bienvenido a nuestro servicio médico</h2>
+              <p>Encuentra la mejor atención para tu salud</p>
+              <div className='banner-buttons'>
+                <button
+                  className='banner-btn primary'
+                  onClick={openMedicalApp}
+                >
+                  Reservar Cita
+                </button>
+                <button
+                  className='banner-btn secondary'
+                  onClick={() =>
+                    document
+                      .getElementById('servicios')
+                      ?.scrollIntoView({ behavior: 'smooth' })
+                  }
+                >
+                  Ver Servicios
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <GenericSection
+            id='servicios'
+            title='Especialidades Destacadas'
+            subtitle='Contamos con los mejores especialistas en cada área'
+            columns={4}
+          >
+            <GenericCard
+              icon='❤️'
+              title='Cardiología'
+              content='Expertos en salud cardiovascular'
+            />
+            <GenericCard
+              icon='🦷'
+              title='Odontología'
+              content='Cuidado dental integral'
+            />
+            <GenericCard
+              icon='👶'
+              title='Pediatría'
+              content='Especialistas en salud infantil'
+            />
+            <GenericCard
+              icon='👁️'
+              title='Dermatología'
+              content='Cuidado de la piel especializado'
+            />
+          </GenericSection>
+        </Home>
+      )}
+
+      {/* 🔹 Invitados: Modal MedicalAppointment */}
+      {!user && (
+        <NestedModal
+          isOpen={isModalOpen('medicalApp')}
+          onClose={closeMedicalApp}
+          title='Sistema Médico Gran Potosí'
+          size='fullscreen'
+          theme='medical'
+          animation='slide'
+          customHeader={
+            <GenericHeader
+              title='Gran Potosí'
+              items={headerItemsModal}
+              theme='medical'
+            />
+          }
+        >
+          <MedicalAppointment
+            onClose={closeMedicalApp}
+            onOpenAuthModal={openAuthModalApp}
+            onAuthSuccess={handleAuthSuccess}
+            commonFooter={commonFooter}
+          />
+        </NestedModal>
+      )}
+
+      {/* 🔹 Usuario autenticado: Modal Reservation */}
+      {user && (
+        <Reservation
+          isOpen={isModalOpen('reservation')}
+          onClose={() => closeModal('reservation')}
+          onConfirm={handleReservation}
+          isGuest={false}
         />
       )}
 
-      {/* Modales */}
+      {/* 🔹 Modal Auth */}
       <Auth
         isOpen={isModalOpen('auth')}
-        onClose={closeAuthModal}
+        onClose={closeAuthModalApp}
+        title={authModalMode === 'register' ? 'Registro' : 'Iniciar Sesión'}
+        size='medium'
+        theme='medical'
+        showCloseButton={false}
         mode={authModalMode}
-        onSwitchMode={switchAuthMode}
+        onSwitchMode={() =>
+          setAuthModalMode((prev) => (prev === 'login' ? 'register' : 'login'))
+        }
         onSuccess={handleAuthSuccess}
       />
 
-      <Reservation
-        isOpen={isModalOpen('reservation')}
-        onClose={closeReservationModal}
-        onConfirm={handleReservation}
-        isGuest={isGuest}
-      />
+      {commonFooter}
 
-      <Profile isOpen={isModalOpen('profile')} onClose={closeProfile} />
-
-      {/* Debug tools */}
-      {debugMode && <DebugConsole />}
       {debugMode && <TreeViewer state={appState} />}
     </div>
   );

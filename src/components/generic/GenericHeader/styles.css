@@ -1,32 +1,44 @@
+/* Estilos responsivos para el header */
 @media (max-width: 768px) {
-  header > div {
-    flex-direction: column !important;
-    align-items: flex-start !important;
-    gap: 1rem !important;
-  }
-
-  nav {
-    flex-wrap: wrap !important;
-  }
-
-  .user-menu, .auth-buttons {
-    width: 100%;
-    justify-content: flex-end;
-  }
-}
-/* Desktop: hide hamburger */
-.hamburger-btn {
-  display: none !important;
-}
-
-/* Mobile */
-@media (max-width: 768px) {
+  /* Ocultar elementos de desktop en móvil */
   .desktop-nav,
   .desktop-auth {
     display: none !important;
   }
+  
+  /* Ajustar padding en móvil */
+  header > div {
+    padding: 1rem !important;
+  }
+  
+  /* Ajustar tamaño de título en móvil */
+  h1 {
+    font-size: 1.25rem !important;
+  }
+}
 
+/* Para dispositivos muy pequeños */
+@media (max-width: 480px) {
+  header > div {
+    padding: 0.75rem !important;
+  }
+  
+  h1 {
+    font-size: 1.1rem !important;
+  }
+  
+  .mobile-menu {
+    padding: 1rem !important;
+  }
+}
+
+/* Asegurar que el botón hamburguesa sea visible en móvil */
+.hamburger-btn {
+  display: block !important;
+}
+
+@media (min-width: 769px) {
   .hamburger-btn {
-    display: block !important;
+    display: none !important;
   }
 }

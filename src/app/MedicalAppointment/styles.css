@@ -1,0 +1,72 @@
+/* App.css */
+.app-launcher {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  text-align: center;
+  padding: 20px;
+}
+
+.app-launcher h1 {
+  color: #2c3e50;
+  margin-bottom: 10px;
+  font-size: 2.5rem;
+}
+
+.app-launcher p {
+  color: #7f8c8d;
+  margin-bottom: 30px;
+  font-size: 1.2rem;
+}
+
+.start-app-btn {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 15px 40px;
+  font-size: 1.2rem;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.start-app-btn:hover {
+  background-color: #2980b9;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.start-app-btn:active {
+  transform: translateY(0);
+}
+
+/* Estilos para el botón de cierre personalizado */
+.custom-close-btn {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.custom-close-btn:hover {
+  background: #c0392b;
+}
+
+/* Ajustes para que MedicalApp ocupe todo el espacio del modal */
+.MedicalApp {
+  height: 100%;
+  overflow: auto;
+}
+
+/* Ajustes específicos para el modal fullscreen */
+.modal-fullscreen-content .MedicalApp {
+  padding: 0;
+  margin: 0;
+}

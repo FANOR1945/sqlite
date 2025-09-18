@@ -5,12 +5,12 @@ import GenericCard from '../../../../components/generic/GenericCard';
 
 const PatientDashboard = ({ onNewReservation, user, reservations }) => {
   // Filtrar reservas por estado
-  const upcomingAppointments = reservations.filter(r =>
-    r.status === 'pending' || r.status === 'confirmed'
+  const upcomingAppointments = reservations.filter(
+    (r) => r.status === 'pending' || r.status === 'confirmed'
   );
 
-  const completedAppointments = reservations.filter(r =>
-    r.status === 'completed'
+  const completedAppointments = reservations.filter(
+    (r) => r.status === 'completed'
   );
 
   const formatDate = (dateString) => {
@@ -18,7 +18,7 @@ const PatientDashboard = ({ onNewReservation, user, reservations }) => {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
     });
   };
 
@@ -27,17 +27,21 @@ const PatientDashboard = ({ onNewReservation, user, reservations }) => {
       pending: 'status-pending',
       confirmed: 'status-confirmed',
       completed: 'status-completed',
-      cancelled: 'status-cancelled'
+      cancelled: 'status-cancelled',
     };
 
     const statusText = {
       pending: 'Pendiente',
       confirmed: 'Confirmada',
       completed: 'Completada',
-      cancelled: 'Cancelada'
+      cancelled: 'Cancelada',
     };
 
-    return <span className={`status-badge ${statusClasses[status]}`}>{statusText[status]}</span>;
+    return (
+      <span className={`status-badge ${statusClasses[status]}`}>
+        {statusText[status]}
+      </span>
+    );
   };
 
   return (
@@ -45,47 +49,59 @@ const PatientDashboard = ({ onNewReservation, user, reservations }) => {
       {/* Hero personalizado para pacientes */}
       <GenericHero
         title={`Bienvenido, ${user.name}`}
-        subtitle="Gestiona tus citas médicas de forma sencilla"
-        ctaText="Nueva Reserva"
+        subtitle='Gestiona tus citas médicas de forma sencilla'
+        ctaText='Nueva Reserva'
         onCtaClick={onNewReservation}
-        image="👨‍⚕️"
-        imagePosition="right"
-        theme="medical"
-        size="medium"
+        image='👨‍⚕️'
+        imagePosition='right'
+        theme='medical'
+        size='medium'
       />
 
       {/* Sección de próximas citas */}
       <GenericSection
-        title="Tus Próximas Citas"
-        subtitle="Revisa y gestiona tus próximas visitas médicas"
-        theme="light"
+        title='Tus Próximas Citas'
+        subtitle='Revisa y gestiona tus próximas visitas médicas'
+        theme='light'
       >
         {upcomingAppointments.length > 0 ? (
-          <div className="appointments-container">
-            {upcomingAppointments.map(appointment => (
+          <div className='appointments-container'>
+            {upcomingAppointments.map((appointment) => (
               <GenericCard
                 key={appointment.id}
-                icon="📅"
+                icon='📅'
                 title={`Cita con ${appointment.doctor?.name || 'Especialista'}`}
                 content={
-                  <div className="card-content-container">
-                    <p>Especialidad: {appointment.specialty?.name || appointment.service?.name}</p>
-                    <p>Fecha: {formatDate(appointment.date)} a las {appointment.time}</p>
+                  <div className='card-content-container'>
+                    <p>
+                      Especialidad:{' '}
+                      {appointment.specialty?.name || appointment.service?.name}
+                    </p>
+                    <p>
+                      Fecha: {formatDate(appointment.date)} a las{' '}
+                      {appointment.time}
+                    </p>
                     {getStatusBadge(appointment.status)}
                   </div>
                 }
                 actions={[
-                  { text: 'Ver detalles', onClick: () => alert('Detalles de cita') },
-                  { text: 'Cancelar', onClick: () => alert('Cancelar cita') }
+                  {
+                    text: 'Ver detalles',
+                    onClick: () => alert('Detalles de cita'),
+                  },
+                  { text: 'Cancelar', onClick: () => alert('Cancelar cita') },
                 ]}
-                theme="medical"
+                theme='medical'
               />
             ))}
           </div>
         ) : (
-          <div className="no-appointments">
+          <div className='no-appointments'>
             <p>No tienes citas programadas</p>
-            <button onClick={onNewReservation} className="cta-button">
+            <button
+              onClick={onNewReservation}
+              className='cta-button'
+            >
               Reservar mi primera cita
             </button>
           </div>
@@ -95,24 +111,30 @@ const PatientDashboard = ({ onNewReservation, user, reservations }) => {
       {/* Sección de historial de citas */}
       {completedAppointments.length > 0 && (
         <GenericSection
-          title="Historial de Citas Completadas"
-          subtitle="Tus visitas médicas anteriores"
-          theme="light"
+          title='Historial de Citas Completadas'
+          subtitle='Tus visitas médicas anteriores'
+          theme='light'
         >
-          <div className="appointments-container">
-            {completedAppointments.map(appointment => (
+          <div className='appointments-container'>
+            {completedAppointments.map((appointment) => (
               <GenericCard
                 key={appointment.id}
-                icon="✅"
+                icon='✅'
                 title={`Cita con ${appointment.doctor?.name || 'Especialista'}`}
                 content={
-                  <div className="card-content-container">
-                    <p>Especialidad: {appointment.specialty?.name || appointment.service?.name}</p>
-                    <p>Fecha: {formatDate(appointment.date)} a las {appointment.time}</p>
+                  <div className='card-content-container'>
+                    <p>
+                      Especialidad:{' '}
+                      {appointment.specialty?.name || appointment.service?.name}
+                    </p>
+                    <p>
+                      Fecha: {formatDate(appointment.date)} a las{' '}
+                      {appointment.time}
+                    </p>
                     {getStatusBadge(appointment.status)}
                   </div>
                 }
-                theme="medical-light"
+                theme='medical-light'
               />
             ))}
           </div>
@@ -121,26 +143,26 @@ const PatientDashboard = ({ onNewReservation, user, reservations }) => {
 
       {/* Sección de accesos rápidos */}
       <GenericSection
-        title="Accesos Rápidos"
-        subtitle="Gestiona tu experiencia en MediReserva"
+        title='Accesos Rápidos'
+        subtitle='Gestiona tu experiencia en MediReserva'
         columns={3}
       >
         <GenericCard
-          icon="👤"
-          title="Mi Perfil"
-          content="Actualiza tu información personal y preferencias"
+          icon='👤'
+          title='Mi Perfil'
+          content='Actualiza tu información personal y preferencias'
           onClick={() => window.location.reload()}
         />
         <GenericCard
-          icon="📋"
-          title="Historial Médico"
-          content="Revisa tu historial de citas y tratamientos"
+          icon='📋'
+          title='Historial Médico'
+          content='Revisa tu historial de citas y tratamientos'
           onClick={() => alert('Ir a historial médico completo')}
         />
         <GenericCard
-          icon="🏥"
-          title="Centros Médicos"
-          content="Encuentra centros cerca de tu ubicación"
+          icon='🏥'
+          title='Centros Médicos'
+          content='Encuentra centros cerca de tu ubicación'
           onClick={() => alert('Ir a centros médicos')}
         />
       </GenericSection>

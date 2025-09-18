@@ -1,11 +1,12 @@
 // utils/apiFetch.js
-const API_BASE_URL = 'https://translate-amendments-clerk-setting.trycloudflare.com/api';
+const API_BASE_URL =
+  'https://sacramento-extract-gen-salary.trycloudflare.com/api';
 
 export async function apiFetch(url, method = 'GET', data = null, token = null) {
   try {
     // Usar token proporcionado o buscar en localStorage
     const authToken = token || localStorage.getItem('token');
-    
+
     const headers = {
       'Content-Type': 'application/json',
     };

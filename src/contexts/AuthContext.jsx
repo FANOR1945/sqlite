@@ -44,7 +44,10 @@ export const AuthProvider = ({ children }) => {
     try {
       dispatch({ type: 'LOGIN_REQUEST' });
 
-      const response = await apiFetch('/auth/login', 'POST', { email, password });
+      const response = await apiFetch('/auth/login', 'POST', {
+        email,
+        password,
+      });
       const { user, token, isAuthenticated } = response;
       const userRoles = user?.roles || [];
 
@@ -71,20 +74,20 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       dispatch({ type: 'REGISTER_REQUEST' });
-  
+
       const response = await apiFetch('/auth/register', 'POST', userData);
       const { user, token, isAuthenticated } = response;
       const userRoles = user?.roles || [];
-  
+
       const sessionData = { user, token, isAuthenticated, roles: userRoles };
       localStorage.setItem('user', JSON.stringify(sessionData));
       localStorage.setItem('token', token);
-  
+
       dispatch({
         type: 'REGISTER_SUCCESS',
         payload: { user, isAuthenticated, roles: userRoles },
       });
-  
+
       return sessionData;
     } catch (err) {
       dispatch({
@@ -94,7 +97,7 @@ export const AuthProvider = ({ children }) => {
       throw err;
     }
   };
-  
+
   // 🔹 Logout
   const logout = async () => {
     try {
