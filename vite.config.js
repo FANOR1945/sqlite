@@ -6,11 +6,11 @@ export default defineConfig({
   plugins: [react()],
   server: {
     host: '0.0.0.0', // escucha en todas las interfaces
-    port: 5173,
+    port: 5174,
     allowedHosts: [
       '5173.homidominio.ddns.net',
       'homidominio.ddns.net',
-      'gain-daniel-ron-rna.trycloudflare.com',
+      'folder-seeing-story-requirement.trycloudflare.com',
       'http://localhost:8080/proxy/5173/',
       'localhost',
     ],
