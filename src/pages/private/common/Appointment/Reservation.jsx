@@ -16,7 +16,6 @@ const Reservation = ({
   isGuest,
   user,
   customHeader,
-  openAuthModal,
 }) => {
   const [activeOption, setActiveOption] = useState(null);
   const [selectedSpecialty, setSelectedSpecialty] = useState(null);
@@ -25,7 +24,7 @@ const Reservation = ({
   const [selectedService, setSelectedService] = useState(null);
   const [showDoctorSchedule, setShowDoctorSchedule] = useState(false);
 
-  const { goBack } = useNestedModal();
+  const { openModal, goBack } = useNestedModal();
 
   const resetSelections = () => {
     setActiveOption(null);
@@ -42,6 +41,12 @@ const Reservation = ({
   };
 
   const handleConfirm = () => {
+    // 🔐 Si es invitado -> forzar login
+    if (isGuest) {
+      openAuthModal();
+      return;
+    }
+
     const reservationData = {
       doctor: selectedDoctor,
       specialty: selectedSpecialty,
@@ -75,6 +80,23 @@ const Reservation = ({
     ) {
       goBack();
     }
+  };
+
+  // 👇 función para guardar el estado y abrir login
+  const openAuthModal = () => {
+    const currentState = {
+      activeOption,
+      selectedSpecialty,
+      selectedDoctor,
+      selectedTime: null,
+      selectedService,
+      showDoctorSchedule: false,
+    };
+
+    localStorage.setItem('reservationState', JSON.stringify(currentState));
+
+    onClose();
+    openModal('auth');
   };
 
   const getModalContent = () => {
