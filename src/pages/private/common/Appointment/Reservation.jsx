@@ -9,7 +9,14 @@ import ScheduleDisplay from './ScheduleDisplay';
 import TimeSelection from './TimeSelection';
 import Confirmation from './Confirmation';
 
-const Reservation = ({ isOpen, onClose, onConfirm, isGuest }) => {
+const Reservation = ({
+  isOpen,
+  onClose,
+  onConfirm,
+  isGuest,
+  user,
+  customHeader,
+}) => {
   const [activeOption, setActiveOption] = useState(null);
   const [selectedSpecialty, setSelectedSpecialty] = useState(null);
   const [selectedDoctor, setSelectedDoctor] = useState(null);
@@ -34,66 +41,48 @@ const Reservation = ({ isOpen, onClose, onConfirm, isGuest }) => {
   };
 
   const handleConfirm = () => {
+    // 🔐 Si es invitado -> forzar login
+    if (isGuest) {
+      openAuthModal();
+      return;
+    }
+
     const reservationData = {
       doctor: selectedDoctor,
       specialty: selectedSpecialty,
       service: selectedService,
       time: selectedTime,
-      date: new Date().toLocaleDateString()
+      date: new Date().toLocaleDateString(),
     };
-    
+
     const success = onConfirm(reservationData);
-    if (success) {
-      resetSelections();
-    }
+    if (success) resetSelections();
   };
 
   const handleGoBack = () => {
-    if (selectedTime) {
-      setSelectedTime(null);
-    } else if (showDoctorSchedule) {
+    if (selectedTime) setSelectedTime(null);
+    else if (showDoctorSchedule) {
       setShowDoctorSchedule(false);
       setSelectedDoctor(null);
-    } else if (selectedDoctor) {
-      setSelectedDoctor(null);
-    } else if (selectedSpecialty || selectedService) {
+    } else if (selectedDoctor) setSelectedDoctor(null);
+    else if (selectedSpecialty || selectedService) {
       setSelectedSpecialty(null);
       setSelectedService(null);
-    } else {
-      setActiveOption(null);
-    }
-    
-    if (!activeOption && !selectedSpecialty && !selectedDoctor && 
-        !selectedTime && !selectedService && !showDoctorSchedule) {
+    } else setActiveOption(null);
+
+    if (
+      !activeOption &&
+      !selectedSpecialty &&
+      !selectedDoctor &&
+      !selectedTime &&
+      !selectedService &&
+      !showDoctorSchedule
+    ) {
       goBack();
     }
   };
 
-  const selectSpecialty = (specialty) => {
-    setSelectedSpecialty(specialty);
-  };
-
-  const selectDoctor = (doctor) => {
-    setSelectedDoctor(doctor);
-    setShowDoctorSchedule(true);
-  };
-
-  const selectTime = (time) => {
-    setSelectedTime(time);
-  };
-
-  const selectService = (service) => {
-    setSelectedService(service);
-  };
-
-  const openOption = (option) => {
-    setActiveOption(option);
-  };
-
-  const continueToTimeSelection = () => {
-    setShowDoctorSchedule(false);
-  };
-
+  // 👇 función para guardar el estado y abrir login
   const openAuthModal = () => {
     const currentState = {
       activeOption,
@@ -101,98 +90,106 @@ const Reservation = ({ isOpen, onClose, onConfirm, isGuest }) => {
       selectedDoctor,
       selectedTime: null,
       selectedService,
-      showDoctorSchedule: false
+      showDoctorSchedule: false,
     };
-    
+
     localStorage.setItem('reservationState', JSON.stringify(currentState));
-    
+
     onClose();
     openModal('auth');
   };
 
   const getModalContent = () => {
-    // Pantalla inicial de selección de opción
-    if (!activeOption && !selectedSpecialty && !selectedDoctor && !selectedTime && !selectedService && !showDoctorSchedule) {
-      return <OptionSelection openOption={openOption} />;
+    if (
+      !activeOption &&
+      !selectedSpecialty &&
+      !selectedDoctor &&
+      !selectedTime &&
+      !selectedService &&
+      !showDoctorSchedule
+    ) {
+      return <OptionSelection openOption={setActiveOption} />;
     }
-
-    // Búsqueda por especialidad - seleccionar especialidad
-    if (activeOption === 'Especialidad' && !selectedSpecialty && !selectedDoctor && !selectedTime && !showDoctorSchedule) {
-      return <SpecialtySelection selectSpecialty={selectSpecialty} />;
+    if (activeOption === 'Especialidad' && !selectedSpecialty) {
+      return <SpecialtySelection selectSpecialty={setSelectedSpecialty} />;
     }
-
-    // Búsqueda por especialidad - seleccionar doctor
-    if (activeOption === 'Especialidad' && selectedSpecialty && !selectedDoctor && !selectedTime && !showDoctorSchedule) {
-      return <DoctorSelection 
-               selectedSpecialty={selectedSpecialty} 
-               selectDoctor={selectDoctor} 
-             />;
+    if (
+      activeOption === 'Especialidad' &&
+      selectedSpecialty &&
+      !selectedDoctor
+    ) {
+      return (
+        <DoctorSelection
+          selectedSpecialty={selectedSpecialty}
+          selectDoctor={setSelectedDoctor}
+        />
+      );
     }
-
-    // Búsqueda por médico - seleccionar médico
-    if (activeOption === 'Médico' && !selectedDoctor && !selectedTime && !showDoctorSchedule) {
-      return <DoctorSelection selectDoctor={selectDoctor} />;
+    if (activeOption === 'Médico' && !selectedDoctor) {
+      return <DoctorSelection selectDoctor={setSelectedDoctor} />;
     }
-
-    // Búsqueda por servicio - seleccionar servicio
-    if (activeOption === 'Servicio' && !selectedService && !selectedDoctor && !selectedTime && !showDoctorSchedule) {
-      return <ServiceSelection selectService={selectService} />;
+    if (activeOption === 'Servicio' && !selectedService) {
+      return <ServiceSelection selectService={setSelectedService} />;
     }
-
-    // Búsqueda por servicio - seleccionar doctor para el servicio
-    if (activeOption === 'Servicio' && selectedService && !selectedDoctor && !selectedTime && !showDoctorSchedule) {
-      return <DoctorSelection 
-               selectedService={selectedService} 
-               selectDoctor={selectDoctor} 
-             />;
+    if (activeOption === 'Servicio' && selectedService && !selectedDoctor) {
+      return (
+        <DoctorSelection
+          selectedService={selectedService}
+          selectDoctor={setSelectedDoctor}
+        />
+      );
     }
-
-    // Mostrar horarios de atención del doctor seleccionado
     if (selectedDoctor && showDoctorSchedule) {
-      return <ScheduleDisplay 
-               selectedDoctor={selectedDoctor} 
-               continueToTimeSelection={continueToTimeSelection} 
-             />;
+      return (
+        <ScheduleDisplay
+          selectedDoctor={selectedDoctor}
+          continueToTimeSelection={() => setShowDoctorSchedule(false)}
+        />
+      );
     }
-
-    // Seleccionar horario (después de elegir doctor y ver sus horarios)
     if (selectedDoctor && !selectedTime && !showDoctorSchedule) {
-      return <TimeSelection 
-               selectedDoctor={selectedDoctor} 
-               selectedTime={selectedTime} 
-               selectTime={selectTime} 
-               isGuest={isGuest} 
-               openAuthModal={openAuthModal} 
-               handleConfirm={handleConfirm} 
-             />;
+      return (
+        <TimeSelection
+          selectedDoctor={selectedDoctor}
+          selectTime={setSelectedTime}
+          isGuest={isGuest}
+          openAuthModal={openAuthModal}
+          handleConfirm={handleConfirm}
+        />
+      );
     }
-
-    // Confirmación final
     if (selectedTime) {
-      return <Confirmation 
-               selectedDoctor={selectedDoctor} 
-               selectedSpecialty={selectedSpecialty} 
-               selectedService={selectedService} 
-               selectedTime={selectedTime} 
-               isGuest={isGuest} 
-               setSelectedTime={setSelectedTime} 
-               openAuthModal={openAuthModal} 
-               handleConfirm={handleConfirm} 
-             />;
+      return (
+        <Confirmation
+          selectedDoctor={selectedDoctor}
+          selectedSpecialty={selectedSpecialty}
+          selectedService={selectedService}
+          selectedTime={selectedTime}
+          isGuest={isGuest}
+          setSelectedTime={setSelectedTime}
+          openAuthModal={openAuthModal}
+          handleConfirm={handleConfirm}
+        />
+      );
     }
   };
 
   const getModalTitle = () => {
-    if (selectedTime) return "Confirmar Cita";
-    if (showDoctorSchedule) return "Horarios de Atención";
-    if (selectedDoctor && !showDoctorSchedule) return "Seleccionar Horario";
-    if (selectedSpecialty || selectedService) return "Seleccionar Doctor";
+    if (selectedTime) return 'Confirmar Cita';
+    if (showDoctorSchedule) return 'Horarios de Atención';
+    if (selectedDoctor && !showDoctorSchedule) return 'Seleccionar Horario';
+    if (selectedSpecialty || selectedService) return 'Seleccionar Doctor';
     if (activeOption) return `Búsqueda por ${activeOption}`;
-    return "¿Cómo quieres buscar tu cita?";
+    return '¿Cómo quieres buscar tu cita?';
   };
 
-  const showBackButton = activeOption || selectedSpecialty || selectedDoctor || 
-                        selectedTime || selectedService || showDoctorSchedule;
+  const showBackButton =
+    activeOption ||
+    selectedSpecialty ||
+    selectedDoctor ||
+    selectedTime ||
+    selectedService ||
+    showDoctorSchedule;
 
   return (
     <NestedModal
@@ -201,10 +198,11 @@ const Reservation = ({ isOpen, onClose, onConfirm, isGuest }) => {
       title={getModalTitle()}
       showBackButton={showBackButton}
       onBack={handleGoBack}
-      size="fullscreen"
-      theme="medical"
+      size='fullscreen'
+      theme='medical'
       overlayClose={false}
-      animation="slide"
+      animation='slide'
+      customHeader={customHeader}
     >
       {getModalContent()}
     </NestedModal>

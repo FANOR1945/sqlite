@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sidebar con Tabs como DeepSeek</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            min-height: 100vh;
+            background-color: #f5f5f5;
+            color: #333;
+            overflow: hidden;
+        }
+
+        /* Sidebar principal */
+        .main-sidebar {
+            width: 70px;
+            background: #2c3e50;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            transition: width 0.3s ease;
+            z-index: 100;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .main-sidebar:hover {
+            width: 200px;
+        }
+
+        .main-sidebar:hover .tab-text {
+            display: inline;
+            opacity: 1;
+        }
+
+        .logo {
+            color: white;
+            font-size: 24px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 15px;
+        }
+
+        .logo-text {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .main-sidebar:hover .logo-text {
+            display: inline;
+            opacity: 1;
+        }
+
+        .tab {
+            width: 100%;
+            padding: 15px 20px;
+            color: #bdc3c7;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .tab:hover {
+            background: #34495e;
+            color: white;
+        }
+
+        .tab.active {
+            background: #34495e;
+            color: #3498db;
+            border-left: 4px solid #3498db;
+        }
+
+        .tab-text {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            white-space: nowrap;
+        }
+
+        /* Drawer secundario */
+        .drawer {
+            width: 0;
+            background: white;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            transition: width 0.3s ease;
+            overflow: hidden;
+            z-index: 90;
+        }
+
+        .drawer.open {
+            width: 300px;
+        }
+
+        .drawer-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .drawer-content {
+            padding: 20px;
+        }
+
+        .drawer-section {
+            margin-bottom: 25px;
+        }
+
+        .drawer-section h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+            font-size: 16px;
+        }
+
+        .drawer-item {
+            padding: 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            color: #555;
+            transition: color 0.2s;
+        }
+
+        .drawer-item:hover {
+            color: #3498db;
+        }
+
+        /* Contenido principal */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #7f8c8d;
+        }
+
+        .close-btn:hover {
+            color: #e74c3c;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        p {
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-sidebar {
+                width: 60px;
+            }
+            
+            .drawer.open {
+                width: 250px;
+                position: absolute;
+                left: 60px;
+                height: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar principal con tabs -->
+    <div class="main-sidebar">
+        <div class="logo">
+            <i class="fas fa-brain"></i>
+            <span class="logo-text">DeepSide</span>
+        </div>
+        
+        <div class="tab active" data-tab="home">
+            <i class="fas fa-home"></i>
+            <span class="tab-text">Inicio</span>
+        </div>
+        
+        <div class="tab" data-tab="chat">
+            <i class="fas fa-comment"></i>
+            <span class="tab-text">Chat</span>
+        </div>
+        
+        <div class="tab" data-tab="files">
+            <i class="fas fa-folder"></i>
+            <span class="tab-text">Archivos</span>
+        </div>
+        
+        <div class="tab" data-tab="settings">
+            <i class="fas fa-cog"></i>
+            <span class="tab-text">Configuración</span>
+        </div>
+        
+        <div class="tab" data-tab="help">
+            <i class="fas fa-question-circle"></i>
+            <span class="tab-text">Ayuda</span>
+        </div>
+    </div>
+
+    <!-- Drawer secundario -->
+    <div class="drawer" id="secondaryDrawer">
+        <div class="drawer-header">
+            <h2 id="drawerTitle">Título del Drawer</h2>
+            <button class="close-btn" id="closeDrawer">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="drawer-content">
+            <div class="drawer-section">
+                <h3>Opciones</h3>
+                <div class="drawer-item">
+                    <i class="fas fa-user"></i>
+                    <span>Perfil</span>
+                </div>
+                <div class="drawer-item">
+                    <i class="fas fa-bell"></i>
+                    <span>Notificaciones</span>
+                </div>
+                <div class="drawer-item">
+                    <i class="fas fa-history"></i>
+                    <span>Historial</span>
+                </div>
+            </div>
+            
+            <div class="drawer-section">
+                <h3>Herramientas</h3>
+                <div class="drawer-item">
+                    <i class="fas fa-download"></i>
+                    <span>Descargas</span>
+                </div>
+                <div class="drawer-item">
+                    <i class="fas fa-share-alt"></i>
+                    <span>Compartir</span>
+                </div>
+                <div class="drawer-item">
+                    <i class="fas fa-print"></i>
+                    <span>Imprimir</span>
+                </div>
+            </div>
+            
+            <div class="drawer-section">
+                <h3>Preferencias</h3>
+                <div class="drawer-item">
+                    <i class="fas fa-paint-brush"></i>
+                    <span>Apariencia</span>
+                </div>
+                <div class="drawer-item">
+                    <i class="fas fa-language"></i>
+                    <span>Idioma</span>
+                </div>
+                <div class="drawer-item">
+                    <i class="fas fa-moon"></i>
+                    <span>Modo Oscuro</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="main-content">
+        <h1>Bienvenido a la Interfaz con Sidebar</h1>
+        <p>Esta interfaz simula el comportamiento de DeepSeek con una barra lateral que contiene tabs con iconos. Al hacer clic en cualquier tab, se abrirá un drawer secundario con más opciones y contenido relacionado.</p>
+        
+        <p>El sidebar principal se expande al pasar el mouse por encima, mostrando los textos de los tabs. Es completamente responsive y se adapta a diferentes tamaños de pantalla.</p>
+        
+        <p>Puedes hacer clic en el botón de cerrar (X) en el drawer o seleccionar otra opción del sidebar para cambiar el contenido del drawer.</p>
+        
+        <h2>Características implementadas:</h2>
+        <ul>
+            <li>Sidebar colapsable con iconos</li>
+            <li>Drawer secundario que se abre al hacer clic en un tab</li>
+            <li>Interfaz moderna y limpia</li>
+            <li>Diseño responsive</li>
+            <li>Transiciones suaves</li>
+            <li>Iconos de FontAwesome</li>
+        </ul>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('.tab');
+            const drawer = document.getElementById('secondaryDrawer');
+            const drawerTitle = document.getElementById('drawerTitle');
+            const closeDrawerBtn = document.getElementById('closeDrawer');
+            let currentTab = 'home';
+            
+            // Mapeo de títulos para el drawer según el tab seleccionado
+            const tabTitles = {
+                'home': 'Inicio - Opciones',
+                'chat': 'Chat - Configuración',
+                'files': 'Archivos - Gestión',
+                'settings': 'Configuración General',
+                'help': 'Centro de Ayuda'
+            };
+            
+            // Función para abrir el drawer
+            function openDrawer(tabName) {
+                currentTab = tabName;
+                drawer.classList.add('open');
+                drawerTitle.textContent = tabTitles[tabName];
+                
+                // Actualizar tabs activos
+                tabs.forEach(tab => {
+                    if (tab.dataset.tab === tabName) {
+                        tab.classList.add('active');
+                    } else {
+                        tab.classList.remove('active');
+                    }
+                });
+            }
+            
+            // Event listeners para los tabs
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabName = this.dataset.tab;
+                    openDrawer(tabName);
+                });
+            });
+            
+            // Cerrar el drawer
+            closeDrawerBtn.addEventListener('click', function() {
+                drawer.classList.remove('open');
+            });
+            
+            // Abrir el drawer por defecto con el tab "home"
+            openDrawer('home');
+        });
+    </script>
+</body>
+</html>

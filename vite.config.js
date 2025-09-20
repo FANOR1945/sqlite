@@ -1,15 +1,17 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
   server: {
+    port: 3002, // Puerto de tu servidor
+    host: '0.0.0.0', // Para escuchar en todas las interfaces de red
     allowedHosts: [
-      '5173.homidominio.ddns.net', // Agrega tu host aquí
+      '5173.homidominio.ddns.net',
       'homidominio.ddns.net',
-      'retail-trained-seventh-sound.trycloudflare.com',      // También podrías necesitar el dominio sin el puerto
-      'localhost',                 // Para mantener el acceso local
-    ]
-  }
-})
+      'rapidly-unique-fonts-substitute.trycloudflare.com',
+      'localhost',
+    ],
+  },
+});
